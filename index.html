@@ -18,7 +18,7 @@
     --ink:        #2e3a40;   /* основной текст, тёмный сине-серый */
     --muted:      #6e7b80;   /* второстепенный текст */
     --line:       #cdd6d2;   /* линии/границы */
-    --blue:       #86a5b8;   /* пыльно-голубой — основной акцент, «путь» */
+    --blue:       #86a5b8;   /* пыльно-голубой — основной акцент, «маршрут» */
     --sage:       #9fb79c;   /* шалфей — вторичный акцент */
     --rose:       #c6a3ab;   /* пыльная роза — «любовь», очень дозированно */
 
@@ -246,6 +246,11 @@
   .music.playing .music-btn{ background:var(--blue); color:#fff; border-color:var(--blue); animation:mpulse 2.4s ease-in-out infinite; }
   @keyframes mpulse{ 0%,100%{ box-shadow:0 0 0 0 rgba(134,165,184,.5);} 50%{ box-shadow:0 0 0 13px rgba(134,165,184,0);} }
 
+  /* ===== КНОПКА-МОМЕНТ (ссылка с таймкодом) ===== */
+  .moment{ display:inline-flex; align-items:center; gap:7px; margin-top:14px; text-decoration:none;
+    font-size:14px; color:var(--blue); border:1px solid var(--blue); padding:7px 14px; border-radius:999px; transition:background .2s,color .2s; }
+  .moment:hover{ background:var(--blue); color:#fff; }
+
   /* ===== ЗАЩИТА / ЭКРАН-ЗАГЛУШКА ===== */
   body.gate-open{ overflow:hidden; }
   .gate{ position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center;
@@ -265,17 +270,6 @@
   .gate .err{ min-height:22px; margin-top:14px; color:var(--rose); font-size:14px; }
   .gate.shake .gate-card{ animation:shake .4s; }
   @keyframes shake{ 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
-  /* счётчики + котики + видео + подсказка музыки */
-  .counters{ display:flex; flex-direction:column; gap:16px; align-items:center; margin-top:34px; }
-  .counters .counter{ margin:0; }
-  .hero-cats{ display:block; width:min(300px,72vw); height:auto; margin:26px auto 0; border-radius:14px; box-shadow:var(--shadow); }
-  .videowrap{ background:#000; line-height:0; }
-  .videowrap video{ width:100%; height:auto; max-height:82vh; display:block; }
-  .music-hint{ position:fixed; z-index:59; right:22px; bottom:84px; background:var(--ink); color:#fff;
-    font-size:13px; padding:7px 12px; border-radius:12px; box-shadow:var(--shadow); white-space:nowrap; animation:bob 1.6s ease-in-out infinite; }
-  .music-hint::after{ content:""; position:absolute; right:22px; bottom:-6px; border:7px solid transparent; border-top-color:var(--ink); border-bottom:0; }
-  .music-hint.gone{ display:none; }
-  @keyframes bob{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-6px);} }
 </style>
 </head>
 <body>
@@ -304,19 +298,14 @@
     <svg id="musicIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></svg>
   </button>
 </div>
-<div class="music-hint" id="musicHint">нажми меня</div>
 
 <!-- ============================ HERO ============================ -->
 <header class="hero">
   <p class="eyebrow" id="eyebrow">один год</p>
   <h1><span id="name1">Даниил</span><span class="amp">&</span><span id="name2">Ангелина</span></h1>
-  <p class="tagline" id="tagline">365 дней, кучу мест и одну очень важную дату спустя — вот наш путь.</p>
+  <p class="tagline" id="tagline">365 дней, кучу мест и одну очень важную дату спустя — вот наш маршрут.</p>
 
-  <div class="counters" id="counters">
-    <div class="counter" id="counterFacto" aria-label="вместе де факто"></div>
-    <div class="counter" id="counterJuro" aria-label="вместе де юро"></div>
-  </div>
-  <img class="hero-cats" src="photos/cats.jpg" alt="" onerror="this.remove()">
+  <div class="counter" id="counter" aria-label="сколько мы вместе"></div>
 
   <div class="scrollcue">
     <span>наш путь ниже</span>
@@ -326,7 +315,7 @@
 
 <!-- ============================ МАРШРУТ ============================ -->
 <div class="section-title">
-  <h2 id="routeTitle">Наш путь</h2>
+  <h2 id="routeTitle">Наш маршрут</h2>
   <p id="routeSub">от первого сообщения до сегодня</p>
 </div>
 
@@ -356,26 +345,25 @@
 const CONFIG = {
   name1: "Даниил",
   name2: "Ангелина",
-  startDate: "2025-09-04",          // де юро — официально вместе (ГГГГ-ММ-ДД)
-  startDateFacto: "2025-07-21",     // де факто — неофициально (первый поцелуй)
-  eyebrow: "",                      // подпись над именами (пусто — не показывать)
-  tagline: "От первого «привет» до сегодня — вот наш путь.",
-  routeTitle: "Наш путь",
+  startDate: "2025-09-04",          // 4 сентября 2025 — официально вместе (поменяй на 2025-07-21, если считаете с неофициального)
+  eyebrow: "один год",
+  tagline: "От первого «привет» до сегодня — вот наш маршрут.",
+  routeTitle: "Наш маршрут",
   routeSub: "от первого сообщения до сегодня",
-  closeTitle: "Это было только начало",
-  closeText: "Спасибо, что ты рядом, солнце. Дальше только больше мест, дат, красивых и смешных фотокарточек и кринж шуток :)",
-  closeSign: "твой, Даня aka Big Boy aka Pussy Destroyer aka Попа тыкатель",
-  petals: true,
-  music: "music/track.mp3",
-  musicTitle: "Cigarettes After Sex — Sweet",
-  gate: true,
-  gateDate: "2025-09-04",
-  gateHint: "официальная дата начала отношений"
+  closeTitle: "Это был только первый год",
+  closeText: "Спасибо, что ты рядом. Дальше — только больше мест, дат и глупых скриншотов из переписки.",
+  closeSign: "твой, Даниил",
+  petals: true,                      // милые дрейфующие лепестки: true / false
+  music: "music/track.mp3",          // путь к аудио (положи файл в папку music/). Пусто "" — кнопки не будет
+  musicTitle: "Где Фантом — Я тебя люблю",  // подпись, всплывает при наведении на кнопку
+  gate: true,                        // экран-заглушка на входе: true / false
+  gateDate: "2025-09-04",            // правильная дата-ключ (ГГГГ-ММ-ДД)
+  gateHint: "официальная дата начала отношений"  // текст подсказки
 };
 
 /* ================================================================
    2) ВОСПОМИНАНИЯ — весь контент здесь.
-      Порядок = порядок на пути (сверху вниз).
+      Порядок = порядок на маршруте (сверху вниз).
 
       type: "photo"  — фото + подпись
       type: "chat"   — переписка (пузыри) ИЛИ реальный скриншот (положи в images)
@@ -390,7 +378,7 @@ const MEMORIES = [
     date: "2025-06-30",
     place: "как всё началось",
     title: "Первые сообщения",
-    text: "Разговор про фотографию тории из Японии, цвет глаз и какое-то непонятное айти в анкете.",
+    text: "Разговор про фотографию тории из Японии, цвет глаз и загадочное «айти» в анкете.",
     love: true,
     images: ["photos/chat1.png"]
   },
@@ -398,7 +386,7 @@ const MEMORIES = [
     type: "chat",
     date: "2025-07-01",
     place: "на следующий день",
-    title: "Ты написала первой",
+    title: "Она написала первой",
     text: "«Привет, как дела у тебя» — и понеслось.",
     images: ["photos/chat2.png"]
   },
@@ -407,15 +395,8 @@ const MEMORIES = [
     date: "2025-07-21",
     place: "первая прогулка",
     title: "Первый поцелуй",
-    text: "Фотокарточка с этой прогулки хранится где-то у тебя, я не нашёл это в нашем диалоге :(",
+    text: "Тут мы впервые поцеловались и неофициально начали встречаться 😘 (фото есть только у Ангелины).",
     love: true
-  },
-  {
-    type: "note",
-    date: "",
-    place: "между делом",
-    title: "",
-    quote: "…здесь мы ещё много гуляли, переписывались, на «Интерстеллар» сходили, на Зелёный остров сходили, мяу"
   },
   {
     type: "photo",
@@ -430,15 +411,15 @@ const MEMORIES = [
     type: "photo",
     date: "2025-09-14",
     place: "Sonnam",
-    title: "Наша прогулка до Sonnam'a",
-    text: "Держались за ручки, погуляли, наобнимались!!",
+    title: "Наш день",
+    text: "Фонарики и держались за руки по дороге домой.",
     images: ["photos/lanterns.jpg", "photos/street.jpg"]
   },
   {
     type: "photo",
     date: "2025-10-01",
-    place: "сходили в киношку",
-    title: "Тут со мной начали чаще фоткаться",
+    place: "просто вместе",
+    title: "Обычный день",
     text: "Один из тех обычных дней, которые почему-то помнишь.",
     images: ["photos/oct01.jpg"]
   },
@@ -447,23 +428,23 @@ const MEMORIES = [
     date: "2025-10-04",
     place: "первый ко-оп",
     title: "Baldur's Gate 3",
-    text: "Впервые вместе поиграли. А мы первый акт так и не прошли... А уже почти год скоро будет как сыграли. Надо бы исправить(",
+    text: "Впервые сели играть вместе. Первый акт мы, кстати, так и не прошли — надо бы дойти дальше 😄",
     images: ["photos/bg3.jpg"]
   },
   {
     type: "photo",
     date: "2025-10-17",
     place: "Sonnam",
-    title: "Та же локация, но мы тут понаряднее, мяу",
+    title: "Снова сюда",
     text: "Вернулись туда же, где были 14 сентября. Жаль, что его закрыли.",
     images: ["photos/oct17.jpg"]
   },
   {
     type: "photo",
     date: "2025-11-22",
-    place: "Анджелика",
+    place: "дома",
     title: "Счастливая ты",
-    text: "Счастливая Ангелина после того как мы Анджеликались, хи-хи.",
+    text: "Счастливая Ангелина после того как мы Анджеликались.",
     love: true,
     images: ["photos/nov22.jpg"]
   },
@@ -478,7 +459,7 @@ const MEMORIES = [
   {
     type: "photo",
     date: "2025-12-30",
-    place: "в парке",
+    place: "во дворе",
     title: "Наш снежный сын",
     text: "Слепили нашего снежного сына.",
     images: ["photos/dec30.jpg"]
@@ -488,16 +469,16 @@ const MEMORIES = [
     date: "2026-01-01",
     place: "Новый год",
     title: "1 января",
-    text: "Пришёл после курантов на нгшку, поцеловались, показали попу. А ещё в этот день познакомили с Шелей!!",
+    text: "Пришёл после курантов на нгшку, поцеловались (и показали кое-что, чем я до сих пор горжусь 😄). А ещё в этот день познакомили с Шелей.",
     love: true,
     images: ["photos/jan01_sparklers.jpg", "photos/jan01_cat.jpg"]
   },
   {
     type: "photo",
     date: "2026-02-09",
-    place: "Чат джэпити, обработай типо под плёнку",
+    place: "плёнка",
     title: "Папа и мама в молодости",
-    text: "мб рил на плёнку пофоткаемся... как-нибудь",
+    text: "Из разряда «папа и мама в молодости».",
     images: ["photos/feb09.jpg"]
   },
   {
@@ -505,37 +486,37 @@ const MEMORIES = [
     date: "2026-03-28",
     place: "набережная",
     title: "Сфоткай меня как крутую",
-    text: "Да, я решил добавить сюда немножка кринге, куда без этого :)",
+    text: "«Блин, сфоткай меня как крутую». Ну, я старался. (Второе фото — важное культурное наследие.)",
     images: ["photos/mar28.jpg", "photos/minion.jpg"]
   },
   {
     type: "photo",
     date: "2026-04-04",
-    place: "Анджелика и обмен подарочками",
+    place: "дома",
     title: "Модные штанишки",
-    text: "Подарили модные штанишки на холодные вечера!! (Правда, шушуть смолл — но тут я бигбой :) И немного Анджеликались в этот день, хи-хи.)",
+    text: "Подарили модные штанишки на холодные вечера. (И немного Анджеликались в этот день.)",
     images: ["photos/apr04.jpg"]
   },
   {
     type: "photo",
     date: "2026-04-06",
-    place: "пушкинская",
+    place: "цветущие деревья",
     title: "Под цветущим деревом",
-    text: "Красивые мы под красивым цветущим деревом ❤️🌸 (Эпизод под кодовым названием «почему твой пиксель фоткает лучше моего айфона…».)",
+    text: "Красивые мы под красивым цветущим деревом. (Эпизод «почему твой пиксель фоткает лучше моего айфона…».)",
     images: ["photos/apr06_couple.jpg", "photos/apr06_her.jpg"]
   },
   {
     type: "photo",
     date: "2026-04-20",
-    place: "Fitron",
+    place: "спортзал",
     title: "Свидание в зале",
-    text: "Показал, как мир видят люди ростом выше 160. А мне показали, как именно добились такой попи :)",
+    text: "Показал, как мир видят люди ростом выше 160. А мне показали, ради чего все эти приседания 😄",
     images: ["photos/apr20.jpg"]
   },
   {
     type: "photo",
     date: "2026-05-23",
-    place: "фестиваль в парке",
+    place: "фестиваль",
     title: "Уже можно",
     text: "Взрослые мы: пьём вино на фестивале. Уже можно, уже продают.",
     images: ["photos/may23.jpg"]
@@ -543,9 +524,9 @@ const MEMORIES = [
   {
     type: "photo",
     date: "2026-06-22",
-    place: "селф на университетском · колесо обозрения",
-    title: "Стилевые мы",
-    text: "…а до этого чуть не занялись сексом на колесе обозрения (шутка, но близкая к правде, эх).",
+    place: "колесо обозрения",
+    title: "Колесо обозрения",
+    text: "…а до этого чуть не занялись сексом на колесе обозрения 🎡",
     love: true,
     images: ["photos/jun22.jpg"]
   },
@@ -560,36 +541,28 @@ const MEMORIES = [
   {
     type: "photo",
     date: "2026-08-14",
-    place: "зелёный остров · звездопад",
+    place: "звездопад",
     title: "Смотрели звездопад",
-    text: "Пошли смотреть звездопад — а я всё равно видел только звёздочку рядом с собой. И кучу завораживающих молний!! А ты ещё мою попу, ихих.",
+    text: "Пошли смотреть звездопад — а я всё равно видел только звёздочку рядом с собой. Ну и кучу красивых молний.",
     love: true,
     images: ["photos/aug14.jpg"]
+    // Пример ссылки с таймкодом (раскомментируй и вставь свою):
+    // , link: { url: "https://youtu.be/VIDEO_ID?t=90", label: "наш момент" }
   },
   {
     type: "photo",
     date: "2026-08-24",
-    place: "Surf · Дринкит · мой др",
-    title: "Мы с кофе по 1.5к",
-    text: "Подарили вторую пару крутых наушников. Годовщина первых наушников уже 4 сентября состоялась!!",
+    place: "кафе",
+    title: "Вторая пара",
+    text: "Подарили вторую пару крутых наушников. Годовщина первых — уже 4 сентября 😄",
     images: ["photos/aug24.jpg"]
   },
   {
-    type: "video",
-    date: "2026-08-30",
-    place: "Таганрог",
-    title: "Наше мини-путешествие",
-    text: "Милые мы романтично смотрим на море.",
-    love: true,
-    video: "photos/taganrog.mp4",
-    poster: "photos/taganrog_poster.jpg"
-  },
-  {
     type: "photo",
-    date: "2026-09-12",
-    place: "скоро",
-    title: "Продолжение следует",
-    text: "А вот сюда надо будет что-то вставить, а это что-то надо сделать!!!",
+    date: "2026-09-04",
+    place: "год спустя",
+    title: "И вот мы здесь",
+    text: "Год спустя. Замени на свежее фото — и продолжаем.",
     love: true,
     images: []   // ← закинь сюда свежее совместное фото, напр. ["photos/now.jpg"]
   }
@@ -603,7 +576,7 @@ const $ = (s, r=document) => r.querySelector(s);
 // применяем тексты из CONFIG
 $("#name1").textContent = CONFIG.name1;
 $("#name2").textContent = CONFIG.name2;
-if (CONFIG.eyebrow) { $("#eyebrow").textContent = CONFIG.eyebrow; } else { $("#eyebrow").style.display = "none"; }
+$("#eyebrow").textContent = CONFIG.eyebrow;
 $("#tagline").textContent = CONFIG.tagline;
 $("#routeTitle").textContent = CONFIG.routeTitle;
 $("#routeSub").textContent = CONFIG.routeSub;
@@ -646,26 +619,29 @@ function plural(n, one, few, many){
 }
 
 // счётчик «сколько вместе»
-function renderCounter(id, startISO, lastLabel){
-  const start = new Date(startISO + "T00:00:00");
+function renderCounter(){
+  const start = new Date(CONFIG.startDate + "T00:00:00");
   const now = new Date();
   const days = Math.max(0, Math.floor((now - start) / 86400000));
+
+  // разбивка год / месяцев / дней
   let y = now.getFullYear() - start.getFullYear();
   let m = now.getMonth() - start.getMonth();
   let d = now.getDate() - start.getDate();
   if (d < 0){ m -= 1; d += new Date(now.getFullYear(), now.getMonth(), 0).getDate(); }
   if (m < 0){ y -= 1; m += 12; }
+
   const units = [];
   if (y > 0) units.push([y, plural(y, "год","года","лет")]);
   units.push([m, plural(m, "месяц","месяца","месяцев")]);
   units.push([d, plural(d, "день","дня","дней")]);
-  units.push([days, lastLabel]);
-  document.getElementById(id).innerHTML = units.map(([num, cap]) =>
+  units.push([days, plural(days, "день вместе","дня вместе","дней вместе")]);
+
+  $("#counter").innerHTML = units.map(([num, cap]) =>
     `<div class="unit"><div class="num">${num}</div><div class="cap">${cap}</div></div>`
   ).join("");
 }
-renderCounter("counterFacto", CONFIG.startDateFacto, "де факто");
-renderCounter("counterJuro", CONFIG.startDate, "де юро");
+renderCounter();
 
 // формат даты
 const MONTHS = ["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
@@ -711,19 +687,12 @@ function screenshotHTML(images){
   ).join("");
 }
 
-function videoHTML(src, poster){
-  const p = poster ? ` poster="${poster}"` : "";
-  return `<div class="videowrap"><video controls preload="metadata" playsinline${p}><source src="${src}"></video></div>`;
-}
-
 function cardHTML(mem){
   let media = "";
   if (mem.type === "chat" && mem.messages && mem.messages.length){
     media = chatHTML(mem.messages);
   } else if (mem.type === "chat" && mem.images && mem.images.length){
     media = screenshotHTML(mem.images);
-  } else if (mem.type === "video" && mem.video){
-    media = videoHTML(mem.video, mem.poster);
   } else if (mem.type === "note"){
     media = "";
   } else {
@@ -736,11 +705,12 @@ function cardHTML(mem){
   if (mem.title) bodyBits.push(`<h3>${mem.title}</h3>`);
   if (mem.type === "note" && mem.quote) bodyBits.push(`<div class="note"><div class="quote">${mem.quote}</div></div>`);
   if (mem.text) bodyBits.push(`<p>${mem.text}</p>`);
+  if (mem.link) bodyBits.push(`<a class="moment" href="${mem.link.url}" target="_blank" rel="noopener">▶ ${mem.link.label || "смотреть момент"}</a>`);
 
   return media + `<div class="body">${bodyBits.join("")}</div>`;
 }
 
-// сборка пути
+// сборка маршрута
 const route = $("#route");
 route.innerHTML = MEMORIES.map(mem => `
   <div class="stop${mem.love ? ' love':''}">
@@ -827,7 +797,6 @@ if (CONFIG.music){
   musicLabel.textContent = CONFIG.musicTitle || '';
   bgm.addEventListener('error', ()=>{ musicLabel.textContent = 'положи файл music/track.mp3'; });
   musicBtn.addEventListener('click', ()=>{
-    const mh = document.getElementById('musicHint'); if (mh) mh.classList.add('gone');
     if (bgm.paused){
       bgm.volume = 0.55;
       bgm.play().then(()=>{ musicWrap.classList.add('playing'); musicIcon.innerHTML = ICON_PAUSE; })
